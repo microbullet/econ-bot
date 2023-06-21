@@ -46,3 +46,15 @@ def not_blacklisted() -> Callable[[T], T]:
         return True
 
     return commands.check(predicate)
+
+def registered() -> Callable[[T], T]:
+    """
+    This is a custom check to see if the user is registered.
+    """
+
+    async def predicate(context: commands.Context) -> bool:
+        if await db_manager.not_registered(context.author.id):
+            db_manager.create_account(context.author.id, 0)
+        return True
+
+    return commands.check(predicate)

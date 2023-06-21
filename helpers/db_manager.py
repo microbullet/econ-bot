@@ -43,6 +43,21 @@ async def is_blacklisted(user_id: int) -> bool:
             return result is not None
 
 
+async def not_registered(user_id: int) -> bool:
+    """
+    This function will check if a user is blacklisted.
+
+    :param user_id: The ID of the user that should be checked.
+    :return: True if the user is blacklisted, False if not.
+    """
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        async with db.execute(
+            "SELECT * FROM bank_accounts WHERE user_id=?", (user_id,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result is not None
+        
+
 async def add_user_to_blacklist(user_id: int) -> int:
     """
     This function will add a user based on its ID in the blacklist.
@@ -157,3 +172,42 @@ async def get_warnings(user_id: int, server_id: int) -> list:
             for row in result:
                 result_list.append(row)
             return result_list
+
+
+async def connect_to_database():
+    connection = await aiosqlite.connect('your_database.db')
+    return connection
+
+
+async def create_account(user_id: int, initial_balance: float, initial_inventory: str):
+    # Connect to the database
+    connection = await connect_to_database()
+
+    # Insert the new bank account into the database
+    await connection.execute("INSERT INTO bank_accounts (account_number, account_holder, balance) VALUES (?, ?, ?)",
+                             (user_id, initial_balance, initial_inventory))
+    await connection.commit()
+
+    # Close the database connection
+    await connection.close()
+
+
+async def add_money(user_id: int, amount: int) -> int:
+    # Connect to the database
+    connection = await connect_to_database()
+
+    # Retrieve the current balance
+    cursor = await connection.execute("SELECT money FROM bank_accounts WHERE account_number = ?", (user_id,))
+    row = await cursor.fetchone()
+    current_balance = row[0] if row else 0.0
+
+    # Calculate the new balance by adding the amount
+    new_balance = current_balance + amount
+
+    # Update the balance for the specified account number
+    await connection.execute("UPDATE bank_accounts SET balance = ? WHERE account_number = ?", (new_balance, user_id))
+    await connection.commit()
+
+    # Close the cursor and database connection
+    await cursor.close()
+    await connection.close()

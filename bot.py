@@ -166,12 +166,12 @@ async def on_ready() -> None:
         await bot.tree.sync()
 
 
-@tasks.loop(minutes=1.0)
+@tasks.loop(minutes=60.0)
 async def status_task() -> None:
     """
     Setup the game status task of the bot.
     """
-    statuses = ["with you!", "with Krypton!", "with humans!"]
+    statuses = ["Fortnite", "Deep Rock Galactic", "Risk of rain 2"]
     await bot.change_presence(activity=discord.Game(random.choice(statuses)))
 
 
@@ -284,6 +284,9 @@ async def on_command_error(context: Context, error) -> None:
     else:
         raise error
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong!")
 
 async def load_cogs() -> None:
     """
@@ -302,4 +305,4 @@ async def load_cogs() -> None:
 
 asyncio.run(init_db())
 asyncio.run(load_cogs())
-bot.run(config["MTAxODM2NTY3MDUyNzg2NDk2Mg.GebJ9g.068l0yl1i6vJj9JwBeCsXfvIlp42jlcvIO2_gg"])
+bot.run(config["token"])

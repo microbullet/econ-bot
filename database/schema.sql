@@ -11,3 +11,9 @@ CREATE TABLE IF NOT EXISTS `warns` (
   `reason` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE bank_accounts (
+    user_id INTEGER PRIMARY KEY,
+    balance DECIMAL(10, 2),
+    inventory TEXT
+);
